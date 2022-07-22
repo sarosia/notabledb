@@ -1,5 +1,5 @@
 {
-  "name": "notabledb",
+  "name": "@sarosia/notabledb",
   "version": "1.0.0",
   "description": "Notabledb is a database purely written in JavaScript.",
   "main": "index.js",
