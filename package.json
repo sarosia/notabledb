@@ -1,0 +1,41 @@
+{
+  "name": "notabledb",
+  "version": "1.0.0",
+  "description": "Notabledb is a database purely written in JavaScript.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node server.js",
+    "test": "mocha --reporter spec --bail --check-leaks test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sarosia/notabledb.git"
+  },
+  "author": "sarosia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sarosia/notabledb/issues"
+  },
+  "homepage": "https://github.com/sarosia/notabledb#readme",
+  "devDependencies": {
+    "@types/node": "^16.10.2",
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^7.32.0",
+    "eslint-config-google": "^0.14.0",
+    "mocha": "^9.1.1",
+    "tmp-promise": "^3.0.2",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "@sarosia/apper": "github:sarosia/apper",
+    "@sarosia/e": "^1.0.1",
+    "node-fetch": "^2.0.0"
+  }
+}
