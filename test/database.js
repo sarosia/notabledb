@@ -8,13 +8,13 @@ describe('Database', () => {
   const storage = new InMemoryStorage();
   storage.write({
     users: {
-      "userid-1": {
-        name: "Alice"
+      'userid-1': {
+        name: 'Alice',
       },
-      "userid-2": {
-        name: "Bob"
-      }
-    }
+      'userid-2': {
+        name: 'Bob',
+      },
+    },
   });
   const database = new Database(storage);
 
@@ -22,19 +22,19 @@ describe('Database', () => {
     it('Empty path', async () => {
       expect(await database.query([])).to.deep.equal({
         users: {
-          "userid-1": {
-            name: "Alice"
+          'userid-1': {
+            name: 'Alice',
           },
-          "userid-2": {
-            name: "Bob"
-          }
-        }
+          'userid-2': {
+            name: 'Bob',
+          },
+        },
       });
     });
 
     it('Existing item', async () => {
       expect(await database.query(['users', 'userid-1'])).to.deep.equal({
-        name: "Alice"
+        name: 'Alice',
       });
     });
 
@@ -48,27 +48,49 @@ describe('Database', () => {
       await database.update(['users', 'userid-1', 'name'], 'Alex');
       expect(await storage.read()).to.deep.equal({
         users: {
-          "userid-1": {
-            name: "Alex"
+          'userid-1': {
+            name: 'Alex',
           },
-          "userid-2": {
-            name: "Bob"
-          }
-        }
+          'userid-2': {
+            name: 'Bob',
+          },
+        },
       });
     });
     it('Non-existing item', async () => {
-      expect(database.update(['users', 'userid-3', 'name'], 'Calvin')).to.be.rejected;
+      expect(database.update(['users', 'userid-3', 'name'], 'Calvin'))
+          .to.be.rejected;
       expect(await storage.read()).to.deep.equal({
         users: {
-          "userid-1": {
-            name: "Alex"
+          'userid-1': {
+            name: 'Alex',
           },
-          "userid-2": {
-            name: "Bob"
-          }
-        }
+          'userid-2': {
+            name: 'Bob',
+          },
+        },
       });
+    });
+
+    it('Update root', async () => {
+      await database.update([], {items: [1, 2]});
+      expect(await storage.read()).to.deep.equal({items: [1, 2]});
+    });
+  });
+
+  describe('#remove', () => {
+    it('Remove property', async () => {
+      const db = new Database(new InMemoryStorage());
+      await db.update([], {a: 1, b: 2});
+      await db.remove(['a']);
+      expect(await db.query([])).to.deep.equal({b: 2});
+    });
+
+    it('Remove array item', async () => {
+      const db = new Database(new InMemoryStorage());
+      await db.update([], {list: ['first', 'second', 'third']});
+      await db.remove(['list', '1']);
+      expect(await db.query(['list'])).to.deep.equal(['first', 'third']);
     });
   });
 });

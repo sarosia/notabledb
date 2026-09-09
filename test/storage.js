@@ -1,7 +1,7 @@
 const FilesystemStorage = require('../lib/filesystem_storage');
 const expect = require('chai').expect;
 const {
-  withFile
+  withFile,
 } = require('tmp-promise');
 const fs = require('fs').promises;
 
@@ -46,7 +46,7 @@ describe('Storage', () => {
       await withNewStorage(async (storage, path) => {
         await storage.write({
           'n': 1,
-          'm': 'a'
+          'm': 'a',
         });
         expect(await fs.readFile(path, 'utf8')).to.equal('{"n":1,"m":"a"}');
       });
