@@ -149,5 +149,52 @@ describe('ShardedDatabase (Pattern 1: Path-based Sharding)', () => {
         expect(await db.query(['metrics', 'device-abc'])).to.deep.equal({ cpu: 20 });
       }, { unsafeCleanup: true });
     });
+
+    it('Option B: shardRule returning simple string shardKey and partition auto-detection', async () => {
+      await withDir(async ({ path: tmpDir }) => {
+        const db = new ShardedDatabase({
+          baseDir: tmpDir,
+          shardRule: (p) => {
+            if (p[0] === 'days' && p[1]) {
+              return p[1]; // just return the date key string
+            }
+          }
+        });
+
+        await db.update(['days', '2026-09-12'], [{ battery: 100 }]);
+        const file = path.join(tmpDir, 'days', '2026-09-12.json');
+        expect(JSON.parse(await fs.readFile(file, 'utf8'))).to.deep.equal([{ battery: 100 }]);
+
+        // Auto-partition detection when querying partition root ['days']
+        const allDays = await db.query(['days']);
+        expect(allDays).to.deep.equal({
+          '2026-09-12': [{ battery: 100 }]
+        });
+      }, { unsafeCleanup: true });
+    });
+
+    it('Option B: nested multi-level sharding (devices/watch-1/2026-09-12.json)', async () => {
+      await withDir(async ({ path: tmpDir }) => {
+        const db = new ShardedDatabase({
+          baseDir: tmpDir,
+          shardRule: (p) => {
+            if (p[0] === 'devices' && p.length >= 3) {
+              return {
+                partition: path.join('devices', p[1]),
+                shardKey: p[2],
+                subPath: p.slice(3),
+              };
+            }
+          }
+        });
+
+        await db.update(['devices', 'watch-apple', '2026-09-12'], { steps: 5000 });
+        const filePath = path.join(tmpDir, 'devices', 'watch-apple', '2026-09-12.json');
+        expect(JSON.parse(await fs.readFile(filePath, 'utf8'))).to.deep.equal({ steps: 5000 });
+
+        const readBack = await db.query(['devices', 'watch-apple', '2026-09-12']);
+        expect(readBack).to.deep.equal({ steps: 5000 });
+      }, { unsafeCleanup: true });
+    });
   });
 });
